@@ -1,0 +1,43 @@
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# notebooks
+.ipynb_checkpoints/
+
+# artifacts & data
+artifacts/*
+!artifacts/.gitkeep
+data/*
+!data/.gitkeep
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+
+# model files
+*.joblib
+*.pkl
+
+# logs
+*.log
+# python/build artifacts
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+# local data and diffs
+*.diff
+# IDE
+*.iml
+
+# local/dev artifacts
+/data/
+*.diff
+**/*.egg-info/
