@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
 import typer
@@ -25,17 +26,24 @@ from .split import split_data
 
 app = typer.Typer(add_completion=False)
 
+DEFAULT_ARTIFACTS_DIR = Path("artifacts")
+DEFAULT_SCORED_OUT = Path("artifacts/scored.csv")
+
 
 @app.command()
 def train(
-    data: Path = typer.Option(..., help="Path to immo_data.csv"),
-    artifacts: Path = typer.Option(Path("artifacts"), help="Artifacts output directory"),
-    split: str = typer.Option("random", help="random|geo_holdout|time"),
-    fast: bool = typer.Option(True, help="Fast mode: limit rows and faster importance"),
-    fast_nrows: int = typer.Option(80_000, help="nrows in fast mode"),
-    fast_plot_n: int = typer.Option(20_000, help="n points in plots (sample)"),
-    high_card_th: int = typer.Option(300, help="Drop categorical columns with > this unique values"),
-    seed: int = typer.Option(42, help="Random seed"),
+    data: Annotated[Path, typer.Option(help="Path to immo_data.csv")],
+    artifacts: Annotated[
+        Path, typer.Option(help="Artifacts output directory")
+    ] = DEFAULT_ARTIFACTS_DIR,
+    split: Annotated[str, typer.Option(help="random|geo_holdout|time")] = "random",
+    fast: Annotated[bool, typer.Option(help="Fast mode: limit rows and faster importance")] = True,
+    fast_nrows: Annotated[int, typer.Option(help="nrows in fast mode")] = 80_000,
+    fast_plot_n: Annotated[int, typer.Option(help="n points in plots (sample)")] = 20_000,
+    high_card_th: Annotated[
+        int, typer.Option(help="Drop categorical columns with > this unique values")
+    ] = 300,
+    seed: Annotated[int, typer.Option(help="Random seed")] = 42,
 ) -> None:
     cfg = TrainConfig(
         seed=seed,
@@ -56,7 +64,9 @@ def train(
     rprint(f"[green]Saved[/green] missing_top30.csv (rows: {len(na_tbl)})")
 
     # EDA (sample for speed)
-    plot_df = df.sample(min(cfg.fast_plot_n, len(df)), random_state=cfg.seed) if cfg.fast_mode else df
+    plot_df = (
+        df.sample(min(cfg.fast_plot_n, len(df)), random_state=cfg.seed) if cfg.fast_mode else df
+    )
     if cfg.target in plot_df.columns:
         plot_target_hist(plot_df, cfg.target, artifacts / "eda_target_hist.png")
         plot_scatter_area_vs_target(
@@ -77,15 +87,17 @@ def train(
     te_mask = y_test.between(q_low, q_high)
     X_train, y_train = X_train.loc[tr_mask], y_train.loc[tr_mask]
     X_test, y_test = X_test.loc[te_mask], y_test.loc[te_mask]
-    rprint(f"[bold]Clipping:[/bold] q{cfg.clip_q_low}/{cfg.clip_q_high} = {float(q_low):.2f}/{float(q_high):.2f}")
+    rprint(
+        f"[bold]Clipping:[/bold] q{cfg.clip_q_low}/{cfg.clip_q_high} = {float(q_low):.2f}/{float(q_high):.2f}"
+    )
 
     ridge = build_ridge_model(prepared.numeric_cols, prepared.categorical_cols)
     hgb = build_histgbr_model(
         prepared.numeric_cols, prepared.categorical_cols, seed=cfg.seed, fast_mode=cfg.fast_mode
     )
 
-    fitted = {}
-    results = []
+    fitted: dict[str, object] = {}
+    results: list[dict] = []
 
     for name, est in [("Ridge (baseline)", ridge), ("HistGBR (strong)", hgb)]:
         est.fit(X_train, y_train)
@@ -126,13 +138,17 @@ def train(
     rprint("[green]Saved[/green] feature_importance_top20.*")
 
     # scoring / examples (test set)
-    scored = score_dataframe(best_model, X_test, y_true=y_test, th_pct=cfg.th_pct, th_eur=cfg.th_eur)
+    scored = score_dataframe(
+        best_model, X_test, y_true=y_test, th_pct=cfg.th_pct, th_eur=cfg.th_eur
+    )
     over, under = top_examples(scored, n=10)
     over.to_csv(artifacts / "examples_overpriced_top10.csv", index=False)
     under.to_csv(artifacts / "examples_underpriced_top10.csv", index=False)
     rprint("[green]Saved[/green] examples_overpriced_top10.csv & examples_underpriced_top10.csv")
 
-    plot_pred_vs_true(scored["y_true"].to_numpy(), scored["y_pred"].to_numpy(), artifacts / "pred_vs_true.png")
+    plot_pred_vs_true(
+        scored["y_true"].to_numpy(), scored["y_pred"].to_numpy(), artifacts / "pred_vs_true.png"
+    )
     rprint("[green]Saved[/green] pred_vs_true.png")
 
     save_metadata(
@@ -151,13 +167,15 @@ def train(
 
 @app.command()
 def score(
-    model: Path = typer.Option(..., help="Path to trained model .joblib"),
-    input: Path = typer.Option(..., help="CSV to score (must contain features, optionally target)"),
-    out: Path = typer.Option(Path("artifacts/scored.csv"), help="Output CSV"),
-    target: str = typer.Option("baseRent", help="Target col name (optional in input)"),
-    th_pct: float = typer.Option(0.20, help="Pct threshold for over/under"),
-    th_eur: float = typer.Option(150.0, help="EUR threshold for over/under"),
-    nrows: int = typer.Option(0, help="If >0, read only first n rows"),
+    model: Annotated[Path, typer.Option(help="Path to trained model .joblib")],
+    input: Annotated[
+        Path, typer.Option(help="CSV to score (must contain features, optionally target)")
+    ],
+    out: Annotated[Path, typer.Option(help="Output CSV")] = DEFAULT_SCORED_OUT,
+    target: Annotated[str, typer.Option(help="Target col name (optional in input)")] = "baseRent",
+    th_pct: Annotated[float, typer.Option(help="Pct threshold for over/under")] = 0.20,
+    th_eur: Annotated[float, typer.Option(help="EUR threshold for over/under")] = 150.0,
+    nrows: Annotated[int, typer.Option(help="If >0, read only first n rows")] = 0,
 ) -> None:
     import joblib
 

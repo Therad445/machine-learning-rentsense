@@ -10,15 +10,20 @@ from rentsense.config import TrainConfig
 from rentsense.preprocess import prepare_xy
 from rentsense.scoring import score_dataframe, top_examples
 
-
 st.set_page_config(page_title="RentSense", layout="wide")
 
 st.title("RentSense — прогноз аренды и поиск переоценённых объявлений")
-st.caption("Загрузи CSV → получи прогноз и флаги overpriced/underpriced (если есть колонка baseRent).")
+st.caption(
+    "Загрузи CSV → получи прогноз и флаги overpriced/underpriced (если есть колонка baseRent)."
+)
 
 model_path = st.sidebar.text_input("Путь к модели (.joblib)", value="artifacts/best_model.joblib")
-th_pct = st.sidebar.slider("Порог по проценту (±)", min_value=0.05, max_value=0.50, value=0.20, step=0.01)
-th_eur = st.sidebar.slider("Порог по евро (±)", min_value=50.0, max_value=500.0, value=150.0, step=10.0)
+th_pct = st.sidebar.slider(
+    "Порог по проценту (±)", min_value=0.05, max_value=0.50, value=0.20, step=0.01
+)
+th_eur = st.sidebar.slider(
+    "Порог по евро (±)", min_value=50.0, max_value=500.0, value=150.0, step=10.0
+)
 target = st.sidebar.text_input("Target column (если есть)", value="baseRent")
 
 uploaded = st.file_uploader("CSV файл (например, immo_data.csv)", type=["csv"])

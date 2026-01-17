@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def save_missing_top30(df: pd.DataFrame, out_csv: Path) -> pd.DataFrame:
@@ -26,7 +26,9 @@ def plot_target_hist(df: pd.DataFrame, target: str, out_png: Path) -> None:
     plt.close()
 
 
-def plot_scatter_area_vs_target(df: pd.DataFrame, area_col: str, target: str, out_png: Path) -> None:
+def plot_scatter_area_vs_target(
+    df: pd.DataFrame, area_col: str, target: str, out_png: Path
+) -> None:
     if area_col not in df.columns:
         return
     out_png.parent.mkdir(parents=True, exist_ok=True)

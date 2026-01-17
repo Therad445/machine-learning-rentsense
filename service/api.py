@@ -7,14 +7,13 @@ from typing import Any
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+from pydantic import BaseModel
 from starlette.responses import Response
 
 from rentsense.config import TrainConfig
 from rentsense.preprocess import prepare_xy
 from rentsense.scoring import score_dataframe
-
 
 REQUESTS = Counter("rentsense_requests_total", "Total requests", ["endpoint", "status"])
 LATENCY = Histogram("rentsense_request_latency_seconds", "Request latency", ["endpoint"])

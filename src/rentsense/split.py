@@ -8,12 +8,12 @@ from .config import TrainConfig
 
 
 def split_data(X: pd.DataFrame, y: pd.Series, full_df: pd.DataFrame, cfg: TrainConfig):
-    '''
+    """
     Split options:
     - random (stratify regio1 if exists)
     - geo_holdout (group by geo_plz)
     - time (sort by parsed date and holdout last test_size fraction)
-    '''
+    """
     if cfg.split_mode == "geo_holdout" and "geo_plz" in X.columns:
         gss = GroupShuffleSplit(n_splits=1, test_size=cfg.test_size, random_state=cfg.seed)
         tr_idx, te_idx = next(gss.split(X, y, groups=X["geo_plz"]))
@@ -38,6 +38,4 @@ def split_data(X: pd.DataFrame, y: pd.Series, full_df: pd.DataFrame, cfg: TrainC
         return X_train, X_test, y_train, y_test
 
     strat = X["regio1"] if "regio1" in X.columns else None
-    return train_test_split(
-        X, y, test_size=cfg.test_size, random_state=cfg.seed, stratify=strat
-    )
+    return train_test_split(X, y, test_size=cfg.test_size, random_state=cfg.seed, stratify=strat)

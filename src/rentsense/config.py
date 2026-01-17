@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-
 SplitMode = Literal["random", "geo_holdout", "time"]
 
 
@@ -23,7 +22,13 @@ class TrainConfig:
     protect_cols: tuple[str, ...] = ("geo_plz",)
 
     # drop heavy text-like cols
-    drop_heavy: tuple[str, ...] = ("description", "facilities", "street", "streetPlain", "houseNumber")
+    drop_heavy: tuple[str, ...] = (
+        "description",
+        "facilities",
+        "street",
+        "streetPlain",
+        "houseNumber",
+    )
 
     # filter weird outliers
     living_space_col: str = "livingSpace"

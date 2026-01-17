@@ -28,8 +28,7 @@ def score_dataframe(
         under_mask = (out_df["pct_diff"] < -th_pct) & (out_df["eur_diff"] < -th_eur)
 
         out_df["flag"] = np.where(
-            over_mask, "overpriced",
-            np.where(under_mask, "underpriced", "ok")
+            over_mask, "overpriced", np.where(under_mask, "underpriced", "ok")
         )
     else:
         out_df["flag"] = "unknown"
@@ -44,16 +43,8 @@ def top_examples(scored_df: pd.DataFrame, n: int = 10):
     over_mask = scored_df["flag"] == "overpriced"
     under_mask = scored_df["flag"] == "underpriced"
 
-    over = (
-        scored_df[over_mask]
-        .sort_values(["pct_diff", "eur_diff"], ascending=False)
-        .head(n)
-    )
+    over = scored_df[over_mask].sort_values(["pct_diff", "eur_diff"], ascending=False).head(n)
 
-    under = (
-        scored_df[under_mask]
-        .sort_values(["pct_diff", "eur_diff"], ascending=True)
-        .head(n)
-    )
+    under = scored_df[under_mask].sort_values(["pct_diff", "eur_diff"], ascending=True).head(n)
 
     return over, under

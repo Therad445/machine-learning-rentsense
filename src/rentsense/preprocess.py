@@ -86,7 +86,8 @@ def prepare_xy(df: pd.DataFrame, cfg: TrainConfig) -> PreparedData:
     # drop high-cardinality categories (protect geo_plz)
     protect = set(cfg.protect_cols)
     high_card = [
-        c for c in categorical_cols
+        c
+        for c in categorical_cols
         if c not in protect and X[c].nunique(dropna=True) > cfg.high_card_th
     ]
     if high_card:

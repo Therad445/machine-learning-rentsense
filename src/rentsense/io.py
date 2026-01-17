@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 
 
-def read_csv_robust(path: Path, nrows: Optional[int] = None) -> pd.DataFrame:
-    '''
+def read_csv_robust(path: Path, nrows: int | None = None) -> pd.DataFrame:
+    """
     Reads CSV trying multiple encodings. Falls back to replace invalid chars.
     Mirrors notebook approach.
-    '''
+    """
 
     encodings = ["utf-8", "utf-8-sig", "cp1252", "latin1"]
     last_err: Exception | None = None

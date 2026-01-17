@@ -1,4 +1,4 @@
-from rentsense.metrics import mape, evaluate_regression
+from rentsense.metrics import evaluate_regression, mape
 
 
 def test_mape_basic():

@@ -27,18 +27,22 @@ def segment_metrics(y_true: pd.Series, y_pred: np.ndarray) -> pd.DataFrame:
 
     rows = []
     for lab in labels:
-        m = (seg == lab)
+        m = seg == lab
         if int(m.sum()) == 0:
             continue
         yt = y_true[m]
         yp = y_pred[m]
-        rows.append({
-            "seg": str(lab),
-            "n": int(m.sum()),
-            "MAE": float(mean_absolute_error(yt, yp)),
-            "RMSE": float(np.sqrt(mean_squared_error(yt, yp))),
-            "MAPE": float(mape(yt, yp)),
-        })
+        rows.append(
+            {
+                "seg": str(lab),
+                "n": int(m.sum()),
+                "MAE": float(mean_absolute_error(yt, yp)),
+                "RMSE": float(np.sqrt(mean_squared_error(yt, yp))),
+                "MAPE": float(mape(yt, yp)),
+            }
+        )
     if not rows:
-        return pd.DataFrame(columns=["n", "MAE", "RMSE", "MAPE"]).set_index(pd.Index([], name="seg"))
+        return pd.DataFrame(columns=["n", "MAE", "RMSE", "MAPE"]).set_index(
+            pd.Index([], name="seg")
+        )
     return pd.DataFrame(rows).set_index("seg")
